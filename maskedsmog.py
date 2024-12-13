@@ -117,7 +117,7 @@ def get_image_mean_std():
 
 def get_backbone_from_torchvision(
         backbone_name="resnet50"):  # 可以写程序测试不同resnet得到结果
-    if backbone_from == "resnet18":
+    if backbone_name == "resnet18":
         source_model = torchvision.models.resnet18()
 
     elif backbone_name == "resnet34":
