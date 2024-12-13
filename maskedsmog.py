@@ -10,6 +10,20 @@ from lightly.transforms.smog_transform import SMoGTransform
 from sklearn.cluster import KMeans
 from torch import nn
 
+import torch
+import torchvision
+from sklearn.cluster import KMeans
+from torch import nn
+
+from lightly.models import utils
+from lightly.models.modules.heads import (
+    SMoGPredictionHead,
+    SMoGProjectionHead,
+    SMoGPrototypes,
+)
+from lightly.models.modules.memory_bank import MemoryBankModule
+from lightly.transforms.smog_transform import SMoGTransform
+
 accelerator = "gpu" if torch.cuda.is_available() else "cpu"
 devices_num = 1
 
