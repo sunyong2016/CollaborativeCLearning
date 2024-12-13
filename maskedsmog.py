@@ -5,6 +5,7 @@ import torch
 import torchvision
 from lightly import loss, models
 from lightly.models import utils
+from lightly.loss import NTXentLoss
 
 from sklearn.cluster import KMeans
 from torch import nn
