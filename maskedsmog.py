@@ -168,7 +168,7 @@ def get_backbone_from_CLIP(backbone_name="ViT-B/16"):  # model_names = ['RN50', 
     return clipmodel, preprocess
 
 
-def smog_training(backbone,
+def smog_training(backbone, tr_data_loader, 
                   global_step=0,
                   n_epochs=10,
                   noise_factor=0.5, lr=0.01, each_iterations=300, gamma=0.5):  # noise_factor for adding noise to images
