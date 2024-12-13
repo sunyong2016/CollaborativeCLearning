@@ -5,17 +5,12 @@ import torch
 import torchvision
 from lightly import loss, models
 from lightly.models import utils
-from lightly.models.modules import heads
-from lightly.transforms.smog_transform import SMoGTransform
+
 from sklearn.cluster import KMeans
 from torch import nn
 
-import torch
-import torchvision
 from sklearn.cluster import KMeans
-from torch import nn
 
-from lightly.models import utils
 from lightly.models.modules.heads import (
     SMoGPredictionHead,
     SMoGProjectionHead,
