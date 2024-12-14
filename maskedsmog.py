@@ -160,10 +160,11 @@ def get_backbone_from_torchvision(
 
     else:
         source_model = torchvision.models.vit_h_14()
-
+    
+    out_feature_dim = source_model.fc.in_features
     backbone = torch.nn.Sequential(*list(source_model.children())[:-1])
 
-    return backbone
+    return backbone, out_feature_dim
 
 
 def get_backbone_from_CLIP(backbone_name="ViT-B/16"):  # model_names = ['RN50', 'ViT-B/32', 'ViT-B/16', 'ViT-L/14', 'ViT-L/14@336px']
