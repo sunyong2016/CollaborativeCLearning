@@ -184,7 +184,7 @@ def smog_training(backbone, tr_data_loader, args,
                   global_step=0,
                   n_epochs=10,
                   noise_factor=0.5, lr=0.01, each_iterations=300, gamma=0.5):  # noise_factor for adding noise to images
-    model = SMoGModel(backbone)
+    model = SMoGModel(backbonen_groups=300, in_dim=args.input_size, a_hid_dim=128, b_hid_dim=2048, beta=0.99)
 
     # memory bank because we reset the group features every 300 iterations
     memory_bank_size = each_iterations * args.batch_size
