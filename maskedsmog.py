@@ -165,7 +165,7 @@ def get_backbone_from_torchvision(
     if backbone_name[:6] == "resnet":
         out_feature_dim = source_model.fc.in_features
     else:
-        out_feature_dim = source_model.heads.in_features
+        out_feature_dim = source_model.heads[0].in_features
 
     backbone = torch.nn.Sequential(*list(source_model.children())[:-1])
 
