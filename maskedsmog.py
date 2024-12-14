@@ -180,18 +180,22 @@ def get_backbone_from_CLIP(backbone_name="ViT-B/16"):  # model_names = ['RN50', 
     return clipmodel, preprocess
 
 
-def smog_training(backbone, tr_data_loader, args,
+def create_ssl_model(backbone, args):
+    backbone, out_dim = get_backbone_from_torchvision(configs.backbone_name)
+    args.input_size = out_dim
+    ssl_model = SMoGModel(backbone, n_groups=300, in_dim=args.input_size, a_hid_dim=128, b_hid_dim=2048, beta=0.99)
+    return ssl_model
+
+
+def smog_training(model, tr_data_loader, args,
                   global_step=0,
                   n_epochs=10,
                   noise_factor=0.5, lr=0.01, each_iterations=300, gamma=0.5):  # noise_factor for adding noise to images
-    model = SMoGModel(backbone, n_groups=300, in_dim=args.input_size, a_hid_dim=128, b_hid_dim=2048, beta=0.99)
-
+    
     # memory bank because we reset the group features every 300 iterations
     memory_bank_size = each_iterations * args.batch_size
     memory_bank = MemoryBankModule(size=memory_bank_size)
-
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    model.to(device)
+    model.to(args.device)
 
     global_criterion = nn.CrossEntropyLoss()  # global loss criterion
     local_criterion = NTXentLoss()  # local loss criterion
