@@ -180,7 +180,7 @@ def get_backbone_from_CLIP(backbone_name="ViT-B/16"):  # model_names = ['RN50', 
     return clipmodel, preprocess
 
 
-def create_ssl_model(backbone, args):
+def create_ssl_model(args):
     backbone, out_dim = get_backbone_from_torchvision(configs.backbone_name)
     args.input_size = out_dim
     ssl_model = SMoGModel(backbone, n_groups=300, in_dim=args.input_size, a_hid_dim=128, b_hid_dim=2048, beta=0.99)
