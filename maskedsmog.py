@@ -191,11 +191,11 @@ def smog_training(model, tr_data_loader, args,
                   global_step=0,
                   n_epochs=10,
                   noise_factor=0.5, lr=0.01, each_iterations=300, gamma=0.5):  # noise_factor for adding noise to images
-    
+    device = args.device
     # memory bank because we reset the group features every 300 iterations
     memory_bank_size = each_iterations * args.batch_size
     memory_bank = MemoryBankModule(size=memory_bank_size)
-    model.to(args.device)
+    model.to(device)
 
     global_criterion = nn.CrossEntropyLoss()  # global loss criterion
     local_criterion = NTXentLoss()  # local loss criterion
