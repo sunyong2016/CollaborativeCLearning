@@ -160,8 +160,13 @@ def get_backbone_from_torchvision(
 
     else:
         source_model = torchvision.models.vit_h_14()
-    
-    out_feature_dim = source_model.fc.in_features
+
+    # 获取最后一层的in_features
+    if backbone_name[:6] == "resnet":
+        out_feature_dim = source_model.fc.in_features
+    else:
+        out_feature_dim = source_model.heads.in_features
+
     backbone = torch.nn.Sequential(*list(source_model.children())[:-1])
 
     return backbone, out_feature_dim
