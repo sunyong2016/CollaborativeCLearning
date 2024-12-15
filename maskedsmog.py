@@ -25,8 +25,8 @@ class SMoGModel(nn.Module):
         super().__init__()
 
         self.backbone = backbone
-        self.projection_head = SMoGProjectionHead(args.input_size, args.b_hid_dim, args.a_hid_dim)
-        self.prediction_head = SMoGPredictionHead(args.a_hid_dim, args.b_hid_dim, args.out_feature_dim)
+        self.projection_head = SMoGProjectionHead(args.input_size, args.hid_dim, args.out_feature_dim)
+        self.prediction_head = SMoGPredictionHead(args.out_feature_dim, args.hid_dim, args.out_feature_dim)
 
         self.backbone_momentum = copy.deepcopy(self.backbone)
         self.projection_head_momentum = copy.deepcopy(self.projection_head)
