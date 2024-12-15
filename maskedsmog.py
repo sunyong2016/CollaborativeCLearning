@@ -1,18 +1,11 @@
 import copy
-import numpy as np
 
-import pytorch_lightning as pl
 import torch
 import torchvision
-from lightly import loss, models
-from lightly.models import utils
-from lightly.loss import NTXentLoss
-
 from sklearn.cluster import KMeans
 from torch import nn
 
-from sklearn.cluster import KMeans
-
+from lightly.models import utils
 from lightly.models.modules.heads import (
     SMoGPredictionHead,
     SMoGProjectionHead,
@@ -21,28 +14,19 @@ from lightly.models.modules.heads import (
 from lightly.models.modules.memory_bank import MemoryBankModule
 from lightly.transforms.smog_transform import SMoGTransform
 
-accelerator = "gpu" if torch.cuda.is_available() else "cpu"
-devices_num = 1
-
-torch.backends.cudnn.benchmark = True
-torch.multiprocessing.set_sharing_strategy('file_system')
-
+import numpy as np
+import pytorch_lightning as pl
+from lightly import loss, models
+from lightly.models import utils
+from lightly.loss import NTXentLoss
 
 class SMoGModel(nn.Module):
-
-    def __init__(self,
-                 backbone,
-                 n_groups=300,
-                 in_dim=512,
-                 a_hid_dim=128,
-                 b_hid_dim=2048,
-                 beta=0.99):
+    def __init__(self, backbone, args):
         super().__init__()
 
         self.backbone = backbone
-        self.projection_head = SMoGProjectionHead(in_dim, b_hid_dim, a_hid_dim)
-        self.prediction_head = SMoGPredictionHead(a_hid_dim, b_hid_dim,
-                                                  a_hid_dim)
+        self.projection_head = SMoGProjectionHead(args.input_size, args.b_hid_dim, args.a_hid_dim)
+        self.prediction_head = SMoGPredictionHead(args.a_hid_dim, args.b_hid_dim, args.out_feature_dim)
 
         self.backbone_momentum = copy.deepcopy(self.backbone)
         self.projection_head_momentum = copy.deepcopy(self.projection_head)
@@ -50,10 +34,10 @@ class SMoGModel(nn.Module):
         utils.deactivate_requires_grad(self.backbone_momentum)
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
-        self.n_groups = n_groups
-        self.smog = SMoGPrototypes(group_features=torch.rand(
-            self.n_groups, a_hid_dim),
-                                   beta=beta)
+        self.n_groups = args.group
+        self.smog = SMoGPrototypes(
+            group_features=torch.rand(self.n_groups, args.out_feature_dim), beta=args.beta
+        )
 
     def _cluster_features(self, features: torch.Tensor) -> torch.Tensor:
         # clusters the features using sklearn
@@ -165,7 +149,7 @@ def get_backbone_from_torchvision(
     if backbone_name[:6] == "resnet":
         out_feature_dim = source_model.fc.in_features
     else:
-        out_feature_dim = source_model.heads[0].in_features
+        out_feature_dim = source_model.heads.in_features
 
     backbone = torch.nn.Sequential(*list(source_model.children())[:-1])
 
@@ -195,10 +179,10 @@ def create_ssl_model(args):
 def smog_training(model, tr_data_loader, args,
                   global_step=0,
                   n_epochs=10,
-                  noise_factor=0.5, lr=0.01, each_iterations=300, gamma=0.5):  # noise_factor for adding noise to images
+                  noise_factor=0.5, lr=0.01, a_iteration=300, gamma=0.5):  # noise_factor for adding noise to images
     device = args.device
     # memory bank because we reset the group features every 300 iterations
-    memory_bank_size = each_iterations * args.batch_size
+    memory_bank_size = a_iteration * args.batch_size
     memory_bank = MemoryBankModule(size=memory_bank_size)
     model.to(device)
 
@@ -228,7 +212,7 @@ def smog_training(model, tr_data_loader, args,
             x0 = x0.to(device)
             x1 = x1.to(device)
 
-            if global_step > 0 and global_step % each_iterations == 0:
+            if global_step > 0 and global_step % a_iteration == 0:
                 # reset group features and weights every 300 iterations
                 model.reset_group_features(memory_bank=memory_bank)
                 model.reset_momentum_weights()
