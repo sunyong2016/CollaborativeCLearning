@@ -183,7 +183,8 @@ def smog_training(model, tr_data_loader, args,
     device = args.device
     # memory bank because we reset the group features every 300 iterations
     memory_bank_size = a_iteration * args.batch_size
-    memory_bank = MemoryBankModule(size=memory_bank_size)
+    # memory_bank = MemoryBankModule(size=memory_bank_size)
+    memory_bank = MemoryBankModule(size=(memory_bank_size, 128))
     model.to(device)
 
     global_criterion = nn.CrossEntropyLoss()  # global loss criterion
