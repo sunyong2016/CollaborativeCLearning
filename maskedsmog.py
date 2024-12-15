@@ -34,7 +34,7 @@ class SMoGModel(nn.Module):
         utils.deactivate_requires_grad(self.backbone_momentum)
         utils.deactivate_requires_grad(self.projection_head_momentum)
 
-        self.n_groups = args.group
+        self.n_groups = args.n_groups
         self.smog = SMoGPrototypes(
             group_features=torch.rand(self.n_groups, args.out_feature_dim), beta=args.beta
         )
